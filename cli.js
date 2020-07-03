@@ -29,12 +29,19 @@ prog
   )
   .option('--module', 'use ES modules')
   .option('--allow-hash-bang', 'if the code starts with #! treat it as a comment')
+  .option('--debug', 'debug mode')
   .option('--not', 'folder or file names to skip', prog.LIST)
   .action((args, options, logger) => {
-
     const context = process.cwd()
     const configFilePath = path.resolve(context, '.escheckrc')
     let config = {}
+
+    // 输出结果
+    let result = {
+      errNo: 0,
+      errMsg: 'ok',
+      data: []
+    }
 
     /**
      * Check for a configuration file. If one exists, default to those options
@@ -51,9 +58,12 @@ prog
         : []
 
     if (!files.length) {
-      logger.error(
-        'No files were passed in please pass in a list of files to es-check!'
-      )
+      result.errNo = 1
+      result.errMsg = 'No files were passed in please pass in a list of files to es-check!'
+      logger.info(JSON.stringify(result, null, 2))
+      // logger.error(
+      //   'No files were passed in please pass in a list of files to es-check!'
+      // )
       process.exit(1)
     }
 
@@ -64,45 +74,75 @@ prog
 
     if (args.ecmaVersion) {
       configs.ecmaVersion = args.ecmaVersion
-      logger.debug(`ES-Check: Going to check files using version ${args.ecmaVersio}`)
+      if(options.debug) {
+        logger.info(`ES-Check: Going to check files using version ${args.ecmaVersion}`)
+      }
     }
 
     if (options.module) {
       configs.module = true
-      logger.debug('ES-Check: esmodule is set')
+      if(options.debug) {
+        logger.info('ES-Check: esmodule is set')
+      }
     }
 
     if (options.allowHashBang) {
       configs.allowHashBang = true
-      logger.debug('ES-Check: allowHashBang is set')
+      if(options.debug) {
+        logger.info('ES-Check: allowHashBang is set')
+      }
     }
 
     if (options.not) {
       configs.not = options.not
     }
 
-    logger.info(`ES-Check start`)
+    if(options.debug) {
+      logger.info(`ES-Check start`)
+    }
 
     esCheck(configs).then((errArray) => {
       if (errArray.length > 0) {
-        logger.error(`ES-Check: there were ${errArray.length} ES version matching errors.`)
+        if(options.debug) {
+          logger.error(`ES-Check: there were ${errArray.length} ES version matching errors.`)
+        }
+        let errDatas = []
         errArray.forEach((o) => {
-          logger.info(`
-            ES-Check Error:
-            ----
-            · erroring file: ${o.file}
-            · source file: ${o.source}
-            . location: { line: ${o.line}, column: ${o.column} }
-            . code: ${o.code}
-            ----\n
-          `)
+          // console.log(o)
+          // process.exit(1)
+          if(options.debug) {
+            logger.info(`
+              ES-Check Error:
+              ----
+              · erroring file: ${o.file}
+              · source file: ${o.source}
+              . location: { line: ${o.line}, column: ${o.column} }
+              . code: ${o.code}
+              ----\n
+            `)            
+          } else {
+            let errData = {
+              errorFile: o.file,
+              sourceFile: o.source,
+              location: { line: o.line, column: o.column },
+              code: o.code,
+              stack: o.stack
+            }
+            result.data.push(errData)
+          }
         })
+        logger.info(JSON.stringify(result, null, 2))
         process.exit(1)
       } else {
-        logger.error(`ES-Check: there were no ES version matching errors!  🎉`)
+        result.errMsg = `ES-Check: there were no ES version matching errors!  🎉`
+        logger.info(JSON.stringify(result, null, 2))
+        // logger.error(`ES-Check: there were no ES version matching errors!  🎉`)
       }
     }).catch(err => {
-      logger.error(`ES-Check Error: ${err.message}`)
+      result.errNo = 2
+      result.errMsg = `ES-Check Error: ${err.message}`
+      logger.info(JSON.stringify(result, null, 2))
+      // logger.error(`ES-Check Error: ${err.message}`)
     })
   })
 

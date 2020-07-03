@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/okbeng03/es-check-format.git"
+    "url": "git+https://github.com/ztyezi/es-check-format.git"
   },
   "keywords": [
     "es",
@@ -24,12 +24,12 @@
     "format",
     "output"
   ],
-  "author": "okbeng03",
+  "author": "ztyezi",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/okbeng03/es-check-format/issues"
+    "url": "https://github.com/ztyezi/es-check-format/issues"
   },
-  "homepage": "https://github.com/okbeng03/es-check-format#readme",
+  "homepage": "https://github.com/ztyezi/es-check-format#readme",
   "dependencies": {
     "acorn": "^7.1.1",
     "caporal": "^1.3.0",
