@@ -40,7 +40,8 @@ prog
     let result = {
       errNo: 0,
       errMsg: 'ok',
-      data: []
+      data: [],
+      totalItem: 0
     }
 
     /**
@@ -122,6 +123,7 @@ prog
             `)            
           } else {
             let errData = {
+              errorType: o.stack.split(':')[0],
               errorFile: o.file,
               sourceFile: o.source,
               location: { line: o.line, column: o.column },
@@ -131,6 +133,7 @@ prog
             result.data.push(errData)
           }
         })
+        result.totalItem = errArray.length
         logger.info(JSON.stringify(result, null, 2))
         process.exit(1)
       } else {

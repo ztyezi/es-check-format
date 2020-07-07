@@ -97,7 +97,10 @@ function check (options = {}) {
     }
 
     const errArray = []
-    const globOpts = { cwd: context, root: context, nodir: true }
+    // 改成传绝对路径：
+    // https://juejin.im/post/5c2797f8e51d45176760e2cf
+    const globOpts = { cwd: '/', root: '', nodir: true }
+    // const globOpts = { cwd: context, root: context, nodir: true }
     const acornOpts = { ecmaVersion: e, silent: true }
     const filterForIgnore = (globbedFiles) => {
       if (pathsToIgnore && pathsToIgnore.length > 0) {
